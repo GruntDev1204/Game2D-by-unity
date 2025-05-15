@@ -1,0 +1,35 @@
+# Unity build cache, temp files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+
+# VS/JetBrains IDE junk
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.user
+*.unityproj
+
+# OS hệ thống
+.DS_Store
+Thumbs.db
+
+# Unity-specific
+*.pidb
+*.booproj
+*.svd
+*.suo
+*.apk
+*.aab
+
+# Crash logs, backups
+*.log
+*.bak
+*.tmp
+*.old
+
+# Git LFS metadata
+*.lfsconfig
