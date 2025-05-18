@@ -33,3 +33,5 @@ Thumbs.db
 
 # Git LFS metadata
 *.lfsconfig
+
+/Assets/Media/
