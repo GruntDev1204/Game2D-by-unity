@@ -1,0 +1,132 @@
+﻿using UnityEngine;
+using UnityEngine.UIElements;
+
+public class Main : MonoBehaviour
+{
+    [SerializeField]
+    private GameObject playerPrefab;
+
+    [SerializeField]
+    private GameObject enemyPrefab;
+
+    [SerializeField]
+    private float speed = 100f;
+
+    [SerializeField]
+    private GameObject endButton;
+
+    [SerializeField]
+    private GameObject endText;
+
+    private IEntityGame playerManager;
+    private IEntityGame enemyManager;
+    private floatIE playerSpawnTimer = 0f;
+
+    private float enemySpawnTimer = 0f;
+    private float enemySpawnInterval;
+
+    private Vector3 moveDirection;
+    private bool isGameOver = false;
+
+    private readonly Vector3 spawnEnemyDefault = Helper.ReturnNewVector3(0.07f, 2.8f, 0f);
+    private readonly Vector3 spawnPlayerDefault = Helper.ReturnNewVector3(-0.04f, 0.21f, 0f);
+    private readonly Vector3 spawnEndButtonDefault = Helper.ReturnNewVector3(0.5f, 0.5f, 1f);
+    private readonly Vector3 spawnEndTextDefault = Helper.ReturnNewVector3(2.04f, 0.57f, 1f);
+
+    private void SpawnDefault(IEntityGame player, IEntityGame enemy)
+    {
+        player.Spawn(spawnPlayerDefault);
+        enemy.Spawn(spawnEnemyDefault);
+    }
+
+    private void SpawnStartEntity()
+    {
+        playerManager = new PlayerModel(playerPrefab);
+        enemyManager = new EnemyModel(enemyPrefab);
+        this.SpawnDefault(playerManager, enemyManager);
+        enemySpawnInterval = Random.Range(1f, 2f);
+    }
+
+    private void SpawnEnemy()
+    {
+        if (isGameOver) return;
+
+        enemySpawnTimer += Time.deltaTime;
+        if (enemySpawnTimer >= enemySpawnInterval)
+        {
+            enemyManager.Spawn(Helper.ViewportToWorld(0.07f, Random.Range(0.5f, 1f)));
+            enemySpawnTimer = 0f;
+            enemySpawnInterval = Random.Range(1f, 2f);
+        }
+    }
+
+    private bool IsEndGame(float distance = 0.7f)
+    {
+        return Vector3.Distance(playerManager.Instance.transform.position, enemyManager.Instance.transform.position) <= distance;
+    }
+
+    private void StopGame()
+    {
+        isGameOver = true;
+        Time.timeScale = 0f;
+    }
+
+    private void DisplayEndItems()
+    {
+        if (endText != null)
+        {
+            endText.SetActive(true);
+            endText.transform.position = this.spawnEndTextDefault;
+            Debug.Log(endText.transform.position);
+        }
+        if (endButton != null)
+        {
+            endButton.SetActive(true);
+            endButton.transform.position = this.spawnEndButtonDefault;
+            Debug.Log(endButton.transform.position);
+        }
+    }
+
+    private void EndGame()
+    {
+        this.StopGame();
+        //this.SpawnDefault(playerManager, enemyManager);
+        playerManager.Instance.SetActive(false);
+        enemyManager.Instance.SetActive(false);
+        this.DisplayEndItems();
+    }
+
+    private void PlayingGame()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+        moveDirection = speed * Time.deltaTime * Helper.ReturnNewVector3(moveX, moveY);
+        playerManager.Move(moveDirection);
+    }
+
+    public void Start()
+    {
+        endButton.SetActive(false);
+        endText.SetActive(false);
+        this.SpawnStartEntity();
+    }
+
+    public void Update()
+    {
+        this.SpawnEnemy();
+
+        if (!isGameOver)
+        {
+            this.PlayingGame();
+        }
+
+        if (playerManager.Instance != null && enemyManager.Instance != null)
+        {
+            Debug.Log("Distance: " + Vector3.Distance(playerManager.Instance.transform.position, enemyManager.Instance.transform.position));
+            if (this.IsEndGame(2f))
+            {
+                this.EndGame();
+            }
+        }
+    }
+}

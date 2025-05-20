@@ -10,7 +10,7 @@ public class PlayerModel : IEntityGame
         this.prefab = prefab;
     }
 
-    public GameObject Instance => instance;
+    public GameObject Instance => this.instance;
 
     public void Spawn(Vector3 position)
     {
